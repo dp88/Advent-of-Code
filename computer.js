@@ -1,6 +1,6 @@
 const readline = require('readline-sync');
 
-module.exports = async function computer (program, noun = null, verb = null) {
+module.exports = function computer (program, noun = null, verb = null) {
     let mem = program.slice(0);
     if (noun !== null) mem[1] = noun;
     if (verb !== null) mem[2] = verb;
