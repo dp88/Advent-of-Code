@@ -1,11 +1,5 @@
 {
   "name": "aoc2019",
-  "version": "1.0.0",
-  "description": "",
-  "main": "computer.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "David Palmer",
   "license": "MIT",
   "dependencies": {
