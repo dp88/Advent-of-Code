@@ -1,6 +1,9 @@
 const readline = require('readline-sync');
 
-module.exports = function computer (program, noun = null, verb = null) {
+const defaultInput = () => readline.question('>');
+const defaultOutput = (out) => console.log(out);
+
+module.exports = function computer (program, noun = null, verb = null, inputModule = null, outputModule = null) {
     let mem = program.slice(0);
     if (noun !== null) mem[1] = noun;
     if (verb !== null) mem[2] = verb;
@@ -8,8 +11,14 @@ module.exports = function computer (program, noun = null, verb = null) {
         mem[i] = parseInt(mem[i]);
     }
 
+    if (inputModule == null) {
+        inputModule = defaultInput;
+    }
+    if (outputModule == null) {
+        outputModule = defaultOutput;
+    }
+
     const value = (m, p) => m == 1 ? mem[p] : mem[mem[p]];
-    const pos   = (m, p) => m == 1 ? p : mem[p];
     const operation = [
         // 00
         () => 0,
@@ -25,13 +34,13 @@ module.exports = function computer (program, noun = null, verb = null) {
         },
         // 03 - get input
         (mode) => {
-            const input = readline.question('>');
+            const input = inputModule();
             mem[mem[position + 1]] = parseInt(input);
             return 2;
         },
         // 04 - print
         (mode) => {
-            console.log(value(mode[0], position + 1));
+            outputModule(value(mode[0], position + 1));
             return 2;
         },
         // 05 - t-jump
