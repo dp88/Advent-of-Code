@@ -3,7 +3,12 @@ const readline = require('readline-sync');
 const defaultInput = () => readline.question('>');
 const defaultOutput = (out) => console.log(out);
 
-module.exports = function computer (program, noun = null, verb = null, inputModule = null, outputModule = null) {
+module.exports = function computer (program, {
+                                    noun = null,
+                                    verb = null,
+                                    inputModule = null,
+                                    outputModule = null,
+                                    }) {
     let mem = program.slice(0);
     if (noun !== null) mem[1] = noun;
     if (verb !== null) mem[2] = verb;

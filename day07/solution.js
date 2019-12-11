@@ -22,8 +22,8 @@ for (let c = 0; c < combinations.length; c++) {
     for (let amp = 0; amp < 5; amp++) {
         let inputRequest = 0;
 
-        computer(input, null, null,
-            () => {
+        computer(input, {
+            inputModule: () => {
                 if (inputRequest == 0) {
                     inputRequest++;
                     return combinations[c][amp];
@@ -31,9 +31,10 @@ for (let c = 0; c < combinations.length; c++) {
                     return ampOutput;
                 }
             },
-            (out) => {
+            outputModule: (out) => {
                 ampOutput = out;
-            });
+            }
+        });
     }
 
     if (ampOutput > highest.signal) {
