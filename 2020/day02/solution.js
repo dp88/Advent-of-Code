@@ -14,7 +14,7 @@ class Password {
         };
     }
 
-    isValid() {
+    isValidOld() {
         let characterCount = 0;
         for (let i = 0; i < this.text.length; i++) {
             if (this.text[i] == this.rule.character) {
@@ -25,14 +25,37 @@ class Password {
         return characterCount >= this.rule.min &&
                characterCount <= this.rule.max;
     }
+
+    isValidNew() {
+        let correctPositions = 0;
+        if (this.text[this.rule.min - 1] == this.rule.character) correctPositions++;
+        if (this.text[this.rule.max - 1] == this.rule.character) correctPositions++;
+
+        return correctPositions == 1;
+    }
 }
 
-let validPasswords = 0;
-for (let i = 0; i < input.length; i++) {
-    if ((new Password(input[i])).isValid()) {
-        validPasswords++;
+const passwords = [];
+for (const i of input) {
+    passwords.push(new Password(i));
+}
+
+let validOldPasswords = 0;
+for (const password of passwords) {
+    if (password.isValidOld()) {
+        validOldPasswords++;
     }
 }
 
 console.log('solution part 1)');
-console.log(`valid passwords: ${validPasswords}`);
+console.log(`valid passwords: ${validOldPasswords}`);
+
+let validNewPasswords = 0;
+for (const password of passwords) {
+    if (password.isValidNew()) {
+        validNewPasswords++;
+    }
+}
+
+console.log('solution part 2)');
+console.log(`valid passwords: ${validNewPasswords}`);
