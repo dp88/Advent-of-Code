@@ -45,7 +45,7 @@ const numX = parseInt(input[factors2[0]]),
       numY = parseInt(input[factors2[1]]),
       numZ = parseInt(input[factors2[2]]);
 
-console.log('solution part 1)');
+console.log('solution part 2)');
 console.log(`first number (${factors2[0]}) is ${numX}`);
 console.log(`second number (${factors2[1]}) is ${numY}`);
 console.log(`third number (${factors2[2]}) is ${numZ}`);
