@@ -1,67 +1,53 @@
 const fs = require('fs');
 const input = fs.readFileSync( __dirname + '/input.txt', 'utf8').split('\r\n');
 
-let a = 0,
-    b = 0;
+const search = function search (depth, currentSum = 0, otherFactors = []) {
+    for (let factorIndex = 0; factorIndex < input.length; factorIndex++) {
+        if (otherFactors.includes(factorIndex)) { // we're already looking at this number - skip
+            continue;
+        }
 
-let multipleA;
+        const factor = parseInt(input[factorIndex]); // whats the value at this index?
 
-(() => {
-    for (a = 0; a < input.length; a++) {
-        for (b = 0; b < input.length; b++) {
-            if (a == b) continue;
-
-            const numA = parseInt(input[a]),
-                  numB = parseInt(input[b]);
-
-            if (numA + numB == 2020) {
-                multipleA = numA * numB;
-
-                console.log('solution part 1)');
-                console.log(`first number (${a}) is ${numA}`);
-                console.log(`second number (${b}) is ${numB}`);
-                console.log(`${numA} + ${numB} = 2020? ${numA + numB == 2020 ? 'yes' : 'no'}`);
-
-                return;
+        if (depth == 1) { // we're considering the number of factors requested.
+            if (factor + currentSum == 2020) { // found it!
+                return [factorIndex, ...otherFactors];
+            }
+        } else { // we have to go deeper!
+            const nextLevel = search(depth - 1, currentSum + factor, [factorIndex, ...otherFactors]);
+            if (nextLevel == false) {
+                // keep looking
+                continue;
+            } else { // ride the kick back up
+                return nextLevel;
             }
         }
     }
-})();
 
-console.log(`solution: ${multipleA}`);
+    return false;
+};
 
-let x = 0,
-    y = 0,
-    z = 0;
 
-let multipleB;
+const factors1 = search(2);
+const numA = parseInt(input[factors1[0]]),
+      numB = parseInt(input[factors1[1]]);
 
-(() => {
-    for (x = 0; x < input.length; x++) {
-        for (y = 0; y < input.length; y++) {
-            if (x == y) continue;
+console.log('solution part 1)');
+console.log(`first number (${factors1[0]}) is ${numA}`);
+console.log(`second number (${factors1[1]}) is ${numB}`);
+console.log(`${numA} + ${numB} = 2020? ${numA + numB == 2020 ? 'yes' : 'no'}`);
+console.log(`solution: ${numA * numB}`);
 
-            for (z = 0; z < input.length; z++) {
-                if (x == z || y == z) continue;
+console.log('----------------------------------------------------------------------');
 
-                const numX = parseInt(input[x]),
-                      numY = parseInt(input[y]),
-                      numZ = parseInt(input[z])
+const factors2 = search(3);
+const numX = parseInt(input[factors2[0]]),
+      numY = parseInt(input[factors2[1]]),
+      numZ = parseInt(input[factors2[2]]);
 
-                if (numX + numY + numZ == 2020) {
-                    multipleB = numX * numY * numZ;
-
-                    console.log('solution part 2)');
-                    console.log(`first number (${x}) is ${numX}`);
-                    console.log(`second number (${y}) is ${numY}`);
-                    console.log(`second number (${z}) is ${numZ}`);
-                    console.log(`${numX} + ${numY} + ${numZ} = 2020? ${numX + numY + numZ == 2020 ? 'yes' : 'no'}`);
-
-                    return;
-                }
-            }
-        }
-    }
-})();
-
-console.log(`solution: ${multipleB}`);
+console.log('solution part 1)');
+console.log(`first number (${factors2[0]}) is ${numX}`);
+console.log(`second number (${factors2[1]}) is ${numY}`);
+console.log(`third number (${factors2[2]}) is ${numZ}`);
+console.log(`${numX} + ${numY} + ${numZ} = 2020? ${numX + numY + numZ == 2020 ? 'yes' : 'no'}`);
+console.log(`solution: ${numX * numY * numZ}`);
