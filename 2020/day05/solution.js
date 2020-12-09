@@ -26,13 +26,25 @@ class SeatAssignment {
     }
 }
 
-let highestID = 0;
+const seats = {};
 for (const seat of input) {
-    const id = (new SeatAssignment(seat)).id;
-    if (id > highestID) {
-        highestID = id;
-    }
+    const sa = new SeatAssignment(seat);
+    seats[sa.id] = sa;
 }
+
+const highestID = Object.keys(seats)[Object.keys(seats).length - 1];
 
 console.log('solution part 1)');
 console.log(`highest seat ID: ${highestID}`);
+
+let id = 0;
+for (id = 0; id < parseInt(highestID); id++) {
+    if (typeof seats[id - 1] != 'undefined' &&
+        typeof seats[id]     == 'undefined' &&
+        typeof seats[id + 1] != 'undefined') {
+            break;
+    }
+}
+
+console.log('solution part 2)');
+console.log(`your boarding pass: ${id}`);
