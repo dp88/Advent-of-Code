@@ -14,8 +14,6 @@ const sorted = parsed.sort((a, b) => {
 
 sorted.push(sorted[sorted.length - 1] + 3); // my device
 
-console.log(sorted);
-
 let ones = 0;
 let threes = 0;
 let permutations = 1;
