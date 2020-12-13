@@ -18,11 +18,28 @@ console.log(sorted);
 
 let ones = 0;
 let threes = 0;
+let permutations = 1;
+
+let run = 0;
+
 for (let i = 1; i < sorted.length; i++) {
-    const diff = parseInt(sorted[i]) - parseInt(sorted[i - 1]);
-    if (diff == 1) ones++;
-    if (diff == 3) threes++;
+    const diff = sorted[i] - sorted[i - 1];
+    if (diff == 1) {
+        ones++;
+        run++;
+    }
+    if (diff == 3) {
+        threes++;
+        if (run == 2) permutations *= 2; // a run of 3 single jolt differences (e.g. 4, 5, 6) adds another 2 permutations
+        if (run == 3) permutations *= 4; // a run of 4 single jolt differences (e.g. 10, 11, 12, 13) adds another 4 permutations
+        if (run == 4) permutations *= 7; // a run of 5 single jolt differences (e.h. 20, 21, 22, 23, 24) adds another 7 permutations
+                                         // no longer run exists in my puzzle input
+        run = 0;
+    }
 }
 
 console.log('solution part 1)');
 console.log(`ones: ${ones}, threes: ${threes}, product: ${ones * threes}`);
+
+console.log('solution part 2)');
+console.log(`permutations: ${permutations}`);
