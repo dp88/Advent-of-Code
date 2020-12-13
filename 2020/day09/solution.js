@@ -15,9 +15,36 @@ const findMatch = (i) => {
 }
 
 console.log('solution part 1)');
+let target = 0;
 for (let i = 25; i < input.length; i++) {
     if (!findMatch(i)) {
         console.log(`first number without a match: ${input[i]}`);
+        target = parseInt(input[i]);
         break;
+    }
+}
+
+console.log('solution part 2)');
+for (let i = 0; i < input.length; i++) {
+    let runTarget = target;
+
+    for (let r = i; r < input.length; r++) {
+        runTarget -= parseInt(input[r]);
+
+        if (runTarget === 0 && parseInt(input[r]) != target) {
+            let lowest = target;
+            let highest = 0;
+
+            for (let a = i; a <= r; a++) {
+                const value = parseInt(input[a]);
+                if (value < lowest) lowest = value;
+                if (value > highest) highest = value;
+            }
+
+            console.log(`low: ${lowest}, high: ${highest}, sum: ${lowest + highest}`);
+            break;
+        } else if (runTarget < 0) {
+            break;
+        }
     }
 }
