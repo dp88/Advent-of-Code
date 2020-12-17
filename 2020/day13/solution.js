@@ -22,3 +22,31 @@ for (let i = 0; i < bus.length; i++) {
 
 console.log('solution part 1)');
 console.log(`bus ID: ${soonestID}, departs in: ${soonestDeparture}, product: ${soonestID * soonestDeparture}`);
+
+const findDeparture = (firstDeparture, firstInterval, secondInterval, delay) => {
+    const patternRepeats = firstInterval * secondInterval;
+    // console.log(`first bus leaves at ${firstDeparture}, departs every ${firstInterval} minutes`);
+    // console.log(`second bus leaves at 0, departs every ${secondInterval} minutes`);
+
+    for (let departureTime = firstDeparture; departureTime <= patternRepeats; departureTime += firstInterval) {
+        if ((departureTime + delay) % secondInterval == 0) {
+            // console.log(`${delay} minute delay at ${departureTime}, repeats every ${patternRepeats}\n`);
+
+            return { departureTime, repeat: patternRepeats };
+        }
+    }
+};
+
+let workingInterval = {
+    departureTime: 0,
+    repeat: parseInt(bus[0]),
+};
+
+for (let b = 1; b < bus.length; b++) {
+    if (bus[b] == 'x') continue;
+
+    workingInterval = findDeparture(workingInterval.departureTime, workingInterval.repeat, parseInt(bus[b]), b);
+}
+
+console.log('solution part 2)');
+console.log(`the awesomest departure time is: ${workingInterval.departureTime}`);
