@@ -46,23 +46,36 @@ for (let i = 1; i < input.length; i++) {
     );
 }
 
-let matchingBoard = null;
+function victory(part, score) {
+    console.log(`solution part ${part})`);
+    console.log(`winning score: ${score}`);
+}
+
+let winningBoards = [];
 let calledSubset = [];
 
-for (let i = 0; i < numbersToBeCalled.length && matchingBoard == null; i++) {
+for (let i = 0; i < numbersToBeCalled.length && winningBoards.length < boards.length; i++) {
     calledSubset = numbersToBeCalled.slice(0, i + 1);
 
     for (let b = 0; b < boards.length; b++) {
+        if (winningBoards.indexOf(boards[b]) > -1) continue;
+
         if (boards[b].finished(calledSubset)) {
-            console.log(`finished board ${b}!!`);
-            matchingBoard = boards[b];
-            break;
+            if (winningBoards.length == 0) {
+                victory(1,
+                    boards[b].unmatched(calledSubset).reduce((a, b) => a + b) *
+                    calledSubset[calledSubset.length - 1]
+                );
+            }
+
+            winningBoards.push(boards[b]);
+
+            if (winningBoards.length == boards.length) {
+                victory(2,
+                    boards[b].unmatched(calledSubset).reduce((a, b) => a + b) *
+                    calledSubset[calledSubset.length - 1]
+                );
+            }
         }
     }
 }
-
-const unmatchedSum = matchingBoard.unmatched(calledSubset).reduce((a, b) => a + b);
-const lastNumber = calledSubset[calledSubset.length - 1];
-
-console.log('solution part 1)');
-console.log(`winning score: ${unmatchedSum * lastNumber}`);
