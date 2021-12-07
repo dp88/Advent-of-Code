@@ -4,16 +4,31 @@ const input = fs.readFileSync( __dirname + '/input.txt', 'utf8')
     .map((crab) => parseInt(crab))
     .sort((a, b) => a - b);
 
-const mean = input[input.length / 2];
-let fuelSpent = 0;
-for (const crab of input) {
-    fuelSpent += Math.abs(mean - crab);
+function calculateFuel(formula) {
+    let fuelSpent = 0;
+    for (const crab of input) {
+        fuelSpent += formula(crab);
+    }
+    return fuelSpent;
 }
 
+const mean = input[input.length / 2];
 console.log('solution part 1)');
-console.log(`fuel spent to move to ${mean}: ${fuelSpent}`);
+console.log(`estimated fuel spent to move to ${mean}: ${calculateFuel((crab) => Math.abs(mean - crab))}`);
 
-// console.log('----------------------------------------------------------------------');
+console.log('----------------------------------------------------------------------');
 
-// console.log('solution part 2)');
-// console.log(`fish after 256 days: ${adults.reduce((a, b) => a + b) + BBQ[0] + BBQ[1]}`);
+const average = input.reduce((a,b) => a + b) / input.length;
+const growingDistance = (distance) => (distance * (distance + 1)) / 2;
+
+const target = [
+    calculateFuel((crab) => growingDistance(Math.abs(Math.floor(average) - crab))),
+    calculateFuel((crab) => growingDistance(Math.abs(Math.ceil(average) - crab)))
+];
+
+console.log('solution part 2)');
+if (target[0] < target[1]) {
+    console.log(`actual fuel spent to move to ${Math.floor(average)}: ${target[0]}`);
+} else {
+    console.log(`actual fuel spent to move to ${Math.ceil(average)}: ${target[1]}`);
+}
