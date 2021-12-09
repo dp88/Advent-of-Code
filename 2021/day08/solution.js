@@ -1,80 +1,65 @@
 const fs = require('fs');
 
-const everything = (except = []) => ['a', 'b', 'c', 'd', 'e', 'f', 'g'].filter((l) => !except.includes(l));
+function unscramble(input) {
+    const io = {
+        in: input.split(' | ')[0].split(' ').sort((a, b) => a.length - b.length),
+        out: input.split(' | ')[1].split(' '),
+    };
 
-const reference = [
-    ['a', 'b', 'c', 'e', 'f', 'g'],      // 0
-    ['c', 'f',],                         // 1
-    ['a', 'c', 'd', 'e', 'g'],           // 2
-    ['a', 'c', 'd', 'f', 'g'],           // 3
-    ['b', 'c', 'd', 'f'],                // 4
-    ['a', 'b', 'd', 'f', 'g'],           // 5
-    ['a', 'b', 'd', 'e', 'f', 'g'],      // 6
-    ['a', 'c', 'f'],                     // 7
-    ['a', 'b', 'c', 'd', 'e', 'f', 'g'], // 8
-    ['a', 'b', 'c', 'd', 'f', 'g'],      // 9
-];
+    let wires = ['', '', '', '', '', '', '', '', '', ''];
+    let output = [];
 
-class PossibilityGrid {                                     //   a b c
-    constructor() {                                         // a o x o
-        this.grid = [];                                     // b x o o
-        for (let i = 0; i < 49; i++) this.grid.push(true);  // c o o o
-    }
+    const sorted = (scrambled) => scrambled.split('').sort().join('');
 
-    falsify(letterOne, letterTwo) {
-        if (Array.isArray(letterTwo)) {
-            for (const letter of letterTwo) {
-                this.falsify(letterOne, letter);
-            }
+    // 1, 4, 7, 8
+    wires[1] = sorted(io.in[0]);
+    wires[4] = sorted(io.in[2]);
+    wires[7] = sorted(io.in[1]);
+    wires[8] = sorted(io.in[9]);
 
-            return;
-        }
-
-        const one = everything().indexOf(letterOne),
-              two = everything().indexOf(letterTwo);
-
-        this.grid[(two * 7) + one] = false;
-        this.grid[(one * 7) + two] = false;
-    }
-
-}
-
-class Signal {
-    constructor(signal) {
-        const io = signal.split(' | ');
-        this.input = io[0].split(' ');
-        this.output = io[1].split(' ');
-        this.wires = new PossibilityGrid();
-
-        this.partOneMatches = 0;
-
-        for (const combination of this.output) {
-            // filter first on unique lengths
-            switch (combination.length) {
-                case 2: // Is one
-                    combination.split('').forEach((l) => this.wires.falsify(l, everything(reference[1])));
-                    this.partOneMatches++;
-                    break;
-                case 4: // Is four
-                    combination.split('').forEach((l) => this.wires.falsify(l, everything(reference[4])));
-                    this.partOneMatches++;
-                    break;
-                case 3: // Is seven
-                    combination.split('').forEach((l) => this.wires.falsify(l, everything(reference[7])));
-                    this.partOneMatches++;
-                    break;
-                case 7: // Is eight
-                    combination.split('').forEach((l) => this.wires.falsify(l, everything(reference[8])));
-                    this.partOneMatches++;
-                    break;
-            }
+    // 2, 3, 5
+    for (let i = 3; i < 6; i++) {
+        if (wires[4].split('').filter((segment) => io.in[i].split('').includes(segment)).length == 2) {
+            // 2 is missing 2 segments of 4
+            wires[2] = sorted(io.in[i]);
+        } else if (wires[1].split('').filter((segment) => io.in[i].split('').includes(segment)).length == 2) {
+            // 3 contains all of 1
+            wires[3] = sorted(io.in[i]);
+        } else {
+            // it's 5
+            wires[5] = sorted(io.in[i]);
         }
     }
+
+    // 0, 6, 9
+    for (let i = 6; i < 9; i++) {
+        if (wires[4].split('').filter((segment) => io.in[i].split('').includes(segment)).length == 4) {
+            // 9 contains all of 4
+            wires[9] = sorted(io.in[i]);
+        } else if (wires[5].split('').filter((segment) => io.in[i].split('').includes(segment)).length == 5) {
+            // 6 contains all of 5
+            wires[6] = sorted(io.in[i]);
+        } else {
+            // it's 0
+            wires[0] = sorted(io.in[i]);
+        }
+    }
+
+    for (let i = 0; i < io.out.length; i++) {
+        output.push(wires.indexOf(sorted(io.out[i])));
+    }
+
+    return output;
 }
 
 const signals = fs.readFileSync( __dirname + '/input.txt', 'utf8')
     .split('\r\n')
-    .map((signal) => new Signal(signal));
+    .map((signal) => unscramble(signal));
 
 console.log('solution part 1)');
-console.log(`instances of 1, 4, 7, or 8: ${signals.reduce((sum, signal) => sum + signal.partOneMatches, 0)}`);
+console.log(`instances of 1, 4, 7, or 8: ${signals.reduce((sum, signal) => sum + signal.filter((part) => [1, 4, 7, 8].includes(part)).length, 0)}`);
+
+console.log('----------------------------------------------------------------------');
+
+console.log('solution part 2)');
+console.log(`big sum: ${signals.reduce((sum, signal) => sum + parseInt(signal.join('')), 0)}`);
