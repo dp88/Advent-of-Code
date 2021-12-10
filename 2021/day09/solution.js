@@ -13,7 +13,7 @@ for (const line of input) {
 const IndexToXY = (i) => [ i % width, Math.floor(i / width) ];
 
 function safeIndex(x, y) {
-    if (x < 0 || x >= input[0].length) return -1;
+    if (x < 0 || x >= width) return -1;
     if (y < 0 || y >= input.length) return -1;
 
     return (y * width) + x;
