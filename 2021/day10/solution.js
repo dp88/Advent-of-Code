@@ -1,45 +1,45 @@
 const fs = require('fs');
 const input = fs.readFileSync( __dirname + '/input.txt', 'utf8').split('\r\n');
 
-const pairs = {
-    '()': 3,
-    '[]': 57,
-    '{}': 1197,
-    '<>': 25137,
-};
+const symbol = [
+    { opener: '(', closer: ')', error: 3,     complete: 1 },
+    { opener: '[', closer: ']', error: 57,    complete: 2 },
+    { opener: '{', closer: '}', error: 1197,  complete: 3 },
+    { opener: '<', closer: '>', error: 25137, complete: 4 },
+];
+symbol.__proto__.for = (character) => symbol.find((s) => [s.opener, s.closer].includes(character));
 
-const types = () => Object.keys(pairs);
-const closerFor = (opener) => types().find((p) => p[0] == opener)[1];
-const openerFor = (closer) => types().find((p) => p[1] == closer)[0];
-
-let points = 0;
-
-for (const line of input) {
+function points(line) {
     let stack = '';
 
-    for (let i = 0; i < line.length; i++) {
-        const pair = types().find((p) => p.indexOf(line[i]) > -1);
-
-        if (pair[0] == line[i]) {
-            stack += line[i];
+    for (const char of line) {
+        // line is a new opener
+        if (char == symbol.for(char).opener) {
+            stack += char;
             continue;
         }
-        
-        if (closerFor(stack[stack.length - 1]) != line[i]) {
-            const type = types().find((t) => t.indexOf(line[i]) > -1);
-            points += pairs[type];
 
-            break;
+        // line matches the expected closer
+        if (char == symbol.for(stack[stack.length - 1]).closer) {
+            stack = stack.slice(0, -1);
+            continue;
         }
 
-        stack = stack.slice(0, -1);
+        return [symbol.for(char).error, true];
     }
+
+    return [
+        stack.split('').reverse().reduce((points, character) => (points * 5) + symbol.for(character).complete, 0),
+        false
+    ];
 }
 
+const scored = input.map((line) => points(line));
 console.log('solution part 1)');
-console.log(`syntax error score: ${points}`);
+console.log(`syntax error score: ${scored.filter((score) => score[1]).reduce((sum, score) => sum + score[0], 0)}`);
 
-// console.log('----------------------------------------------------------------------');
+console.log('----------------------------------------------------------------------');
 
-// console.log('solution part 2)');
-// console.log(`product of largest basins ${basins}: ${basins.reduce((a, b) => a * b)}`);
+const fixed = scored.filter((score) => !score[1]).map((score) => score[0]).sort((a, b) => a - b);
+console.log('solution part 2)');
+console.log(`middle fixed score: ${fixed[(fixed.length - 1) / 2]}`);
