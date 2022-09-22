@@ -20,7 +20,8 @@ function draw(step, map) {
     }
 }
 
-for (let step = 0; step < 100; step++) {
+let step = 0;
+while (true) {
     let flashes = [];
 
     // draw(step, map);
@@ -38,8 +39,18 @@ for (let step = 0; step < 100; step++) {
     };
 
     for (let i = 0; i < map.length; i++) bump(i);
-    partOneFlashes += flashes.length;
+
+    if (step++ < 100) {
+        partOneFlashes += flashes.length;
+    }
+
+    if (map.reduce((a, b) => a + b) === 0) break;
 }
 
 console.log('solution part 1)');
 console.log(`total flashes: ${partOneFlashes}`);
+
+console.log('----------------------------------------------------------------------');
+
+console.log('solution part 2)');
+console.log(`first synchronized flash: ${step}`);
