@@ -1,32 +1,35 @@
 const fs = require('fs');
-const input = fs.readFileSync( __dirname + '/input.txt', 'utf8').split('\r\n');
+const map = fs.readFileSync( __dirname + '/input.txt', 'utf8').split('\r\n')
+    .map((line) => line.split('-'))
+    .flatMap((pair) => [[pair[0], pair[1]], [pair[1], pair[0]]])
+    .reduce((m, [from, to]) => {
+        if (from != 'end') {
+            if (m.hasOwnProperty(from)) m[from].push(to);
+            else m[from] = [to];
+        }
 
-let map = {};
+        return m;
+    }, {});
 
-function addPairToMap(a, b) {
-    if (a == 'end') return;
+function traverse(filter, cave = 'start', alreadyExplored = []) {
+    const currentPath = [...alreadyExplored, cave];
 
-    if (map.hasOwnProperty(a) && map[a].indexOf(b)) map[a].push(b);
-    else map[a] = [b];
+    return cave == 'end' ?
+        [currentPath.join(',')] :
+        map[cave]
+            .filter((n) => n != 'start')
+            .filter((n) => filter(n, currentPath))
+            .flatMap((n) => traverse(filter, n, currentPath));
 }
 
-for (const line of input) {
-    const pair = line.split('-');
-    addPairToMap(pair[0], pair[1]);
-    addPairToMap(pair[1], pair[0]);
-}
-
-let allPaths = [];
-function blindRecursiveTraverse(start, alreadyExplored = []) {
-    const path = [...alreadyExplored, start];
-
-    if (start == 'end') allPaths.push(path.join(','));
-    else for (const neighbor of map[start].filter((n) => path.indexOf(n) < 0 || n != n.toLowerCase())) {
-        blindRecursiveTraverse(neighbor, path);
-    }
-}
-
-blindRecursiveTraverse('start');
+const haveNotVisited = (n, path) => path.indexOf(n) < 0;
+const isSmallCave = (n) => n == n.toLowerCase();
+const canRevisitSmall = (path) => path.length == [...new Set(path)].length;
 
 console.log('solution part 1)');
-console.log(`total paths: ${allPaths.length}`);
+console.log(`total paths: ${traverse((n, path) => haveNotVisited(n, path) || !isSmallCave(n)).length}`);
+
+console.log('----------------------------------------------------------------------');
+
+console.log('solution part 2)');
+console.log(`total longer paths: ${traverse((n, path) => haveNotVisited(n, path) || !isSmallCave(n) || canRevisitSmall(path.filter(isSmallCave))).length}`);
