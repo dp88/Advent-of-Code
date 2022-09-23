@@ -32,13 +32,34 @@ function fold(axis, value, dots) {
     return newDots;
 }
 
-let dots = [];
+let dots = [...startingDots];
 let firstFold;
 
 for (let i = 0; i < folds.length; i++) {
-    dots = fold(folds[i].axis, folds[i].value, startingDots);
+    dots = fold(folds[i].axis, folds[i].value, dots);
     if (i == 0) firstFold = [...dots];
 }
 
 console.log('solution part 1)');
 console.log(`visible dots after one fold: ${[...new Set(firstFold.map(dotToCoord))].length}`);
+
+console.log('----------------------------------------------------------------------');
+
+console.log('solution part 2)');
+
+dots = [...new Set(dots.map(dotToCoord))]
+    .map(coordToDot)
+    .sort((a, b) => a.x - b.x)
+    .sort((a, b) => a.y - b.y);
+
+let line = '';
+for (const dot of dots) {
+    if (line.length > dot.x) {
+        console.log(line);
+        line = '';
+    }
+
+    while (line.length < dot.x) line += ' ';
+    line += '#';
+}
+console.log(line);
