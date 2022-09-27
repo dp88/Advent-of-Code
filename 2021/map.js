@@ -73,7 +73,7 @@ module.exports = function (width, height, diagonalNeighbors = false) {
                     enqueueOrUpdate(
                         neighbor,
                         current,
-                        costToNeighbor(current, neighbor),
+                        costToNeighbor(current, neighbor, {...costSoFar}),
                         Math.sqrt(Math.pow(nx - tx, 2) + Math.pow(ny - ty, 2))
                     );
                 }
