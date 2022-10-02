@@ -1,3 +1,5 @@
+const PriorityQueue = require('js-priority-queue');
+
 module.exports = function (width, height, diagonalNeighbors = false) {
     return {
         indexToXY(i) {
@@ -32,7 +34,8 @@ module.exports = function (width, height, diagonalNeighbors = false) {
         pathfind(from, to, costToNeighbor) {
             const cameFrom = { [from]: null };
             const costSoFar = { [from]: 0 };
-            const priorityQueue = [{ node: from, priority: 0 }];
+            const queue = new PriorityQueue({ comparator: (a, b) => a.priority - b.priority });
+            queue.queue({ node: from, priority: 0 });
 
             const [tx, ty] = this.indexToXY(to);
 
@@ -40,21 +43,13 @@ module.exports = function (width, height, diagonalNeighbors = false) {
                 if (!costSoFar.hasOwnProperty(neighbor) || cost < costSoFar[neighbor]) {
                     costSoFar[neighbor] = cost;
                     cameFrom[neighbor] = current;
-
-                    for (let i = 0; i < priorityQueue.length; i++) {
-                        if (priorityQueue[i].node == neighbor) {
-                            priorityQueue.splice(i, 1);
-                            break;
-                        }
-                    }
-
-                    priorityQueue.push({ node: neighbor, priority: cost + distanceToGoal });
+                    queue.queue({ node: neighbor, priority: cost + distanceToGoal });
                 }
             };
 
             do {
-                priorityQueue.sort((a, b) => b.priority - a.priority);
-                let current = parseInt(priorityQueue.pop().node);
+                const top = queue.dequeue();
+                let current = parseInt(top.node);
 
                 if (current == to) {
                     let path = [current];
@@ -77,7 +72,7 @@ module.exports = function (width, height, diagonalNeighbors = false) {
                         Math.sqrt(Math.pow(nx - tx, 2) + Math.pow(ny - ty, 2))
                     );
                 }
-            } while (priorityQueue.length > 0);
+            } while (queue.length > 0);
         }
     };
 };
