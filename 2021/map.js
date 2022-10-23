@@ -47,6 +47,7 @@ module.exports = function (width, height, diagonalNeighbors = false) {
                 }
             };
 
+            const printIteration = this.iterationPrinter();
             do {
                 const top = queue.dequeue();
                 let current = parseInt(top.node);
@@ -62,6 +63,13 @@ module.exports = function (width, height, diagonalNeighbors = false) {
                 }
 
                 const [x, y] = this.indexToXY(current);
+                printIteration(queue, top);
+
+                if (queue.length >= 111) {
+                    this.dumpQueue(queue);
+                    return [];
+                }
+
                 for (const neighbor of this.neighbors(x, y)) {
                     const [nx, ny] = this.indexToXY(neighbor);
                     
@@ -73,6 +81,23 @@ module.exports = function (width, height, diagonalNeighbors = false) {
                     );
                 }
             } while (queue.length > 0);
+        },
+
+        iterationPrinter() {
+            let iteration = 0;
+
+            return (function printIteration(queue, top) {
+                const [x, y] = this.indexToXY(top.node);
+                console.log(`${iteration++}> queue length: ${queue.length}, current node: (${x}, ${y}) @ ${top.priority}`);
+            }).bind(this);
+        },
+
+        dumpQueue(queue) {
+            while (queue.length > 0) {
+                const n = queue.dequeue();
+                const [x, y] = this.indexToXY(n.node);
+                console.log({x, y, ...n});
+            }
         }
     };
 };
