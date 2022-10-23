@@ -1,5 +1,3 @@
-const PriorityQueue = require('js-priority-queue');
-
 module.exports = function (width, height, diagonalNeighbors = false) {
     return {
         indexToXY(i) {
@@ -34,8 +32,8 @@ module.exports = function (width, height, diagonalNeighbors = false) {
         pathfind(from, to, costToNeighbor) {
             const cameFrom = { [from]: null };
             const costSoFar = { [from]: 0 };
-            const queue = new PriorityQueue({ comparator: (a, b) => a.priority - b.priority });
-            queue.queue({ node: from, priority: 0 });
+            const queue = [{ node: from, priority: 0 }];
+            const visited = [];
 
             const [tx, ty] = this.indexToXY(to);
 
@@ -43,14 +41,24 @@ module.exports = function (width, height, diagonalNeighbors = false) {
                 if (!costSoFar.hasOwnProperty(neighbor) || cost < costSoFar[neighbor]) {
                     costSoFar[neighbor] = cost;
                     cameFrom[neighbor] = current;
-                    queue.queue({ node: neighbor, priority: cost + distanceToGoal });
+
+                    for (let i = 0; i < queue.length; i++) {
+                        if (queue[i].node == neighbor) {
+                            queue.splice(i, 1);
+                            break;
+                        }
+                    }
+
+                    queue.push({ node: neighbor, priority: cost + distanceToGoal });
                 }
             };
 
-            const printIteration = this.iterationPrinter();
+            // const printIteration = this.iterationPrinter();
             do {
-                const top = queue.dequeue();
+                queue.sort((a, b) => b.priority - a.priority);
+                let top = queue.pop();
                 let current = parseInt(top.node);
+                visited.push(current);
 
                 if (current == to) {
                     let path = [current];
@@ -63,16 +71,13 @@ module.exports = function (width, height, diagonalNeighbors = false) {
                 }
 
                 const [x, y] = this.indexToXY(current);
-                printIteration(queue, top);
-
-                if (queue.length >= 111) {
-                    this.dumpQueue(queue);
-                    return [];
-                }
+                // printIteration(queue, top);
 
                 for (const neighbor of this.neighbors(x, y)) {
+                    if (visited.indexOf(neighbor) > -1) continue;
+
                     const [nx, ny] = this.indexToXY(neighbor);
-                    
+
                     enqueueOrUpdate(
                         neighbor,
                         current,
