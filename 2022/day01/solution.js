@@ -1,4 +1,5 @@
-const input = (new TextDecoder('utf-8')).decode(Deno.readFileSync('./2022/day01/input.txt'));
+const fs = require('fs');
+const input = fs.readFileSync( __dirname + '/input.txt', 'utf8');
 
 const backpacks = input.split('\r\n\r\n')
     .map((rawPack) => {

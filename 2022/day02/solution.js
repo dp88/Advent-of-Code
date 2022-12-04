@@ -1,13 +1,14 @@
-const rounds = (new TextDecoder('utf-8'))
-    .decode(Deno.readFileSync('./2022/day02/input.txt'))
-    .split('\r\n').map(
+const fs = require('fs');
+const rounds = fs.readFileSync( __dirname + '/input.txt', 'utf8')
+    .split('\r\n')
+    .map(
         (round) => round.split(' ')
             .map((hand) => (["A", "B", "C", "X", "Y", "Z"].indexOf(hand) % 3) + 1)
     );
 
-function scoreForRound(round: number[]): number {
+function scoreForRound(round) {
     const choice = round[1];
-    let outcome: number;
+    let outcome;
     switch (Math.abs(round[1] - round[0])) {
         case 0: // Draw
             outcome = 3
