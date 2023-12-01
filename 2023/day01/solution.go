@@ -3,39 +3,33 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"strconv"
 	"strings"
-	"unicode"
 )
 
 //go:embed input.txt
 var input string
 
-var numbers = [...]string{
-	"one",
-	"two",
-	"three",
-	"four",
-	"five",
-	"six",
-	"seven",
-	"eight",
-	"nine",
+var digits = [9]string{
+	"1", "2", "3", "4", "5", "6", "7", "8", "9",
+}
+
+var spelled = [9]string{
+	"one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
 }
 
 func main() {
 	lines := strings.Split(input, "\n")
 
 	fmt.Println("solution part 1)")
-	fmt.Printf("sum of calibration values: %d\n", search(lines, false))
+	fmt.Printf("sum of calibration values: %d\n", search(lines, digits))
 
 	fmt.Println("----------------------------------------------------------------------")
 
 	fmt.Println("solution part 2)")
-	fmt.Printf("sum of calibration values with spelled numbers: %d\n", search(lines, true))
+	fmt.Printf("sum of calibration values with spelled spelled: %d\n", search(lines, digits, spelled))
 }
 
-func search(lines []string, searchSpelledNumbers bool) int {
+func search(lines []string, matches ...[9]string) int {
 	sum := 0
 
 	for _, line := range lines {
@@ -43,7 +37,7 @@ func search(lines []string, searchSpelledNumbers bool) int {
 		last := -1
 
 		for i := 0; i < len(line); i++ {
-			digit := findDigit(i, line, searchSpelledNumbers)
+			digit := findDigit(line[i:], matches...)
 			if digit != -1 {
 				if first == -1 {
 					first = digit
@@ -53,40 +47,23 @@ func search(lines []string, searchSpelledNumbers bool) int {
 			}
 		}
 
-		combinedNumber, _ := strconv.Atoi(fmt.Sprintf("%d%d", first, last))
-		sum += combinedNumber
+		sum += (first * 10) + last
 	}
 
 	return sum
 }
 
-func findDigit(index int, line string, searchSpelledNumbers bool) int {
-	if unicode.IsDigit(rune(line[index])) {
-		return int(line[index]) - '0'
-	}
+func findDigit(haystack string, matches ...[9]string) int {
+	for _, field := range matches {
+		for numberIndex, numberRepresentation := range field {
+			if len(numberRepresentation) > len(haystack) {
+				continue
+			}
 
-	if searchSpelledNumbers {
-		nextFiveIsh := line[index:]
-		if len(nextFiveIsh) > 5 {
-			nextFiveIsh = nextFiveIsh[:5]
-		}
-
-		return checkStringForDigit(nextFiveIsh)
-	}
-
-	return -1
-}
-
-func checkStringForDigit(text string) int {
-	for numberIndex, spelledNumber := range numbers {
-		if len(spelledNumber) > len(text) {
-			continue
-		}
-
-		shortenedText := text[:len(spelledNumber)]
-
-		if strings.Contains(shortenedText, spelledNumber) {
-			return numberIndex + 1
+			shortenedText := haystack[:len(numberRepresentation)]
+			if strings.Contains(shortenedText, numberRepresentation) {
+				return numberIndex + 1
+			}
 		}
 	}
 
