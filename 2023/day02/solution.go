@@ -26,17 +26,24 @@ func main() {
 	})
 
 	sumOfValidGames := lo.Reduce(allGames, func(agg int, g game, _ int) int {
-		for _, s := range g.sets {
-			if s.red > 12 || s.green > 13 || s.blue > 14 {
-				return agg
-			}
+		if g.isValid() {
+			return agg + g.id
 		}
 
-		return agg + g.id
+		return agg
+	}, 0)
+
+	sumOfPowers := lo.Reduce(allGames, func(agg int, g game, _ int) int {
+		return agg + g.minimumCubes().power()
 	}, 0)
 
 	fmt.Println("solution part 1)")
 	fmt.Printf("sum of the IDs of all valid games: %d\n", sumOfValidGames)
+
+	fmt.Println("----------------------------------------------------------------------")
+
+	fmt.Println("solution part 2)")
+	fmt.Printf("sum of the powers of the minimum sets: %d\n", sumOfPowers)
 }
 
 func parseGame(result string) game {
@@ -78,4 +85,32 @@ func parseSet(setPart string) set {
 	}
 
 	return s
+}
+
+func (g game) isValid() bool {
+	for _, s := range g.sets {
+		if s.red > 12 || s.green > 13 || s.blue > 14 {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (g game) minimumCubes() set {
+	return set{
+		red: lo.MaxBy(g.sets, func(a, b set) bool {
+			return a.red > b.red
+		}).red,
+		green: lo.MaxBy(g.sets, func(a, b set) bool {
+			return a.green > b.green
+		}).green,
+		blue: lo.MaxBy(g.sets, func(a, b set) bool {
+			return a.blue > b.blue
+		}).blue,
+	}
+}
+
+func (s set) power() int {
+	return s.red * s.green * s.blue
 }
