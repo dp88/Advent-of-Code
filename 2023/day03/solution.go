@@ -11,19 +11,21 @@ import (
 //go:embed input.txt
 var input string
 var lines []string
-var parts []partNumber
 
-type partNumber struct {
-	row     int
-	columns []int
+var parts, gears []part
+
+type part struct {
+	row              int
+	startCol, endCol int
 }
 
 func main() {
 	lines = strings.Split(input, "\n")
-	parts = make([]partNumber, 0)
+	parts = make([]part, 0, 128)
+	gears = make([]part, 0, 128)
 
 	for row, line := range lines {
-		var currentPart *partNumber = nil
+		var currentPart *part = nil
 
 		for col := 0; col < len(line); col++ {
 			char := line[col : col+1]
@@ -31,34 +33,45 @@ func main() {
 			_, err := strconv.Atoi(char)
 			if err == nil {
 				if currentPart == nil {
-					currentPart = &partNumber{
-						row:     row,
-						columns: make([]int, 0),
+					currentPart = &part{
+						row:      row,
+						startCol: col,
 					}
 				}
-
-				currentPart.columns = append(currentPart.columns, col)
 			} else {
 				if currentPart != nil {
+					currentPart.endCol = col - 1
 					parts = append(parts, *currentPart)
 					currentPart = nil
+				}
+
+				if char == "*" {
+					gears = append(gears, part{
+						row:      row,
+						startCol: col,
+						endCol:   col,
+					})
 				}
 			}
 		}
 
 		if currentPart != nil {
+			currentPart.endCol = len(line) - 1
 			parts = append(parts, *currentPart)
 			currentPart = nil
 		}
 	}
 
-	sumOfParts := lo.Reduce(parts, func(agg int, part partNumber, _ int) int {
+	sumOfParts := lo.Reduce(parts, func(agg int, part part, _ int) int {
 		if part.IsPartNumber() {
-			fmt.Printf("%d (%d, %d)\n", part.Number(), part.row, part.columns[0])
-			return agg + part.Number()
+			agg += part.Number()
 		}
 
 		return agg
+	}, 0)
+
+	sumRatios := lo.Reduce(gears, func(agg int, gear part, _ int) int {
+		return agg + gear.GearRatio()
 	}, 0)
 
 	fmt.Println("solution part 1)")
@@ -67,48 +80,73 @@ func main() {
 	fmt.Println("----------------------------------------------------------------------")
 
 	fmt.Println("solution part 2)")
+	fmt.Printf("sum of gear ratios: %d\n", sumRatios)
 }
 
-func (p partNumber) Number() int {
+func (p part) Number() int {
 	numberChars := ""
 
-	for _, col := range p.columns {
-		numberChars += lines[p.row][col : col+1]
+	for x := p.startCol; x <= p.endCol; x++ {
+		numberChars += lines[p.row][x : x+1]
 	}
 
 	number, _ := strconv.Atoi(numberChars)
 	return number
 }
 
-func (p partNumber) IsPartNumber() bool {
+func (p part) IsPartNumber() bool {
+	isPartNumber := false
+	p.Encircle(func(x, y int) {
+		char := lines[y][x : x+1]
+		_, err := strconv.Atoi(char)
+		if err != nil && char != "." {
+			isPartNumber = true
+		}
+	})
+
+	return isPartNumber
+}
+
+func (p part) GearRatio() int {
+	numbers := make([]part, 0, 4)
+
+	p.Encircle(func(x, y int) {
+		number, ok := lo.Find(parts, func(other part) bool {
+			return other.Contains(x, y)
+		})
+
+		if ok {
+			numbers = append(numbers, number)
+		}
+	})
+
+	numbers = lo.Uniq(numbers)
+
+	if len(numbers) == 2 {
+		return numbers[0].Number() * numbers[1].Number()
+	}
+
+	return 0
+}
+
+func (p part) Contains(x, y int) bool {
+	return y == p.row && x >= p.startCol && x <= p.endCol
+}
+
+func (p part) Encircle(callback func(x, y int)) {
 	startY := max(p.row-1, 0)
 	stopY := min(p.row+1, len(lines)-1)
 
-	startX := max(p.columns[0]-1, 0)
-	stopX := min(p.EndColumn()+1, len(lines[p.row]))
+	startX := max(p.startCol-1, 0)
+	stopX := min(p.endCol+1, len(lines[p.row]))
 
 	for y := startY; y <= stopY; y++ {
 		for x := startX; x <= stopX; x++ {
-			// This coordinate is part of the part number
-			if y == p.row && x >= p.columns[0] && x <= p.EndColumn() {
+			if p.Contains(x, y) || x+1 >= len(lines[y]) {
 				continue
 			}
 
-			if x+1 >= len(lines[y]) {
-				continue
-			}
-
-			char := lines[y][x : x+1]
-			_, err := strconv.Atoi(char)
-			if err != nil && char != "." {
-				return true
-			}
+			callback(x, y)
 		}
 	}
-
-	return false
-}
-
-func (p partNumber) EndColumn() int {
-	return p.columns[len(p.columns)-1]
 }
