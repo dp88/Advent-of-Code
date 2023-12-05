@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aoc2023/helpers"
 	_ "embed"
 	"fmt"
 	"github.com/samber/lo"
@@ -74,13 +75,11 @@ func main() {
 		return agg + gear.GearRatio()
 	}, 0)
 
-	fmt.Println("solution part 1)")
-	fmt.Printf("sum of part IDs: %d\n", sumOfParts)
+	helpers.Solution(
+		fmt.Sprintf("sum of part IDs: %d", sumOfParts),
+		fmt.Sprintf("sum of gear ratios: %d", sumRatios),
+	)
 
-	fmt.Println("----------------------------------------------------------------------")
-
-	fmt.Println("solution part 2)")
-	fmt.Printf("sum of gear ratios: %d\n", sumRatios)
 }
 
 func (p part) Number() int {

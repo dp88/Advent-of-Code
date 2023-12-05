@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aoc2023/helpers"
 	_ "embed"
 	"fmt"
 	"strings"
@@ -20,13 +21,10 @@ var spelled = [9]string{
 func main() {
 	lines := strings.Split(input, "\n")
 
-	fmt.Println("solution part 1)")
-	fmt.Printf("sum of calibration values: %d\n", search(lines, digits))
-
-	fmt.Println("----------------------------------------------------------------------")
-
-	fmt.Println("solution part 2)")
-	fmt.Printf("sum of calibration values with spelled spelled: %d\n", search(lines, digits, spelled))
+	helpers.Solution(
+		fmt.Sprintf("sum of calibration values: %d", search(lines, digits)),
+		fmt.Sprintf("sum of calibration values with spelled spelled: %d", search(lines, digits, spelled)),
+	)
 }
 
 func search(lines []string, matches ...[9]string) int {

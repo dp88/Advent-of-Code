@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aoc2023/helpers"
 	_ "embed"
 	"fmt"
 	"github.com/samber/lo"
@@ -37,13 +38,10 @@ func main() {
 		return agg + g.minimumCubes().power()
 	}, 0)
 
-	fmt.Println("solution part 1)")
-	fmt.Printf("sum of the IDs of all valid games: %d\n", sumOfValidGames)
-
-	fmt.Println("----------------------------------------------------------------------")
-
-	fmt.Println("solution part 2)")
-	fmt.Printf("sum of the powers of the minimum sets: %d\n", sumOfPowers)
+	helpers.Solution(
+		fmt.Sprintf("sum of the IDs of all valid games: %d", sumOfValidGames),
+		fmt.Sprintf("sum of the powers of the minimum sets: %d", sumOfPowers),
+	)
 }
 
 func parseGame(result string) game {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aoc2023/helpers"
 	_ "embed"
 	"fmt"
 	"github.com/samber/lo"
@@ -26,11 +27,6 @@ func main() {
 		return agg + c.PointValue()
 	}, 0)
 
-	fmt.Println("solution part 1)")
-	fmt.Printf("sum of scratch card points: %d\n", sumPoints)
-
-	fmt.Println("----------------------------------------------------------------------")
-
 	cascading := make([]int, len(cards))
 	for i := range cards {
 		cascading[i] = 1
@@ -48,8 +44,10 @@ func main() {
 		totalCardCount += count
 	}
 
-	fmt.Println("solution part 2)")
-	fmt.Printf("number of all scratch cards: %d\n", totalCardCount)
+	helpers.Solution(
+		fmt.Sprintf("sum of scratch card points: %d", sumPoints),
+		fmt.Sprintf("number of all scratch cards: %d", totalCardCount),
+	)
 }
 
 func parseCard(row string) card {
