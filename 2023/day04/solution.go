@@ -22,16 +22,34 @@ func main() {
 		cards = append(cards, parseCard(row))
 	}
 
-	for _, card := range cards {
-		fmt.Println(card.PointValue())
-	}
-
 	sumPoints := lo.Reduce(cards, func(agg int, c card, _ int) int {
 		return agg + c.PointValue()
 	}, 0)
 
 	fmt.Println("solution part 1)")
 	fmt.Printf("sum of scratch card points: %d\n", sumPoints)
+
+	fmt.Println("----------------------------------------------------------------------")
+
+	cascading := make([]int, len(cards))
+	for i := range cards {
+		cascading[i] = 1
+	}
+
+	totalCardCount := 0
+	for id, count := range cascading {
+		matches := cards[id].Matches()
+		goUntil := id + matches
+
+		for next := id + 1; next <= goUntil; next++ {
+			cascading[next] += count
+		}
+
+		totalCardCount += count
+	}
+
+	fmt.Println("solution part 2)")
+	fmt.Printf("number of all scratch cards: %d\n", totalCardCount)
 }
 
 func parseCard(row string) card {
@@ -54,20 +72,23 @@ func parseCard(row string) card {
 	}
 }
 
-func (c card) PointValue() int {
-	matches := lo.Filter(c.results, func(result int, index int) bool {
+func (c card) Matches() int {
+	return lo.Reduce(c.results, func(agg, result, _ int) int {
 		for _, winner := range c.winners {
 			if result == winner {
-				return true
+				agg += 1
 			}
 		}
 
-		return false
-	})
+		return agg
+	}, 0)
+}
 
+func (c card) PointValue() int {
+	matches := c.Matches()
 	points := 0
-	if len(matches) > 0 {
-		for n := 1; n <= len(matches); n++ {
+	if matches > 0 {
+		for n := 1; n <= matches; n++ {
 			points = max(points*2, 1)
 		}
 	}
