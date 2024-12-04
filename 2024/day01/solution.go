@@ -40,37 +40,21 @@ func main() {
 }
 
 func calculateDiffs(cols [2][]int) int {
-	diffs := make([]int, 0, len(cols[0]))
-
-	for i := 0; i < len(cols[0]); i++ {
-		diff := cols[0][i] - cols[1][i]
-		if diff < 0 {
-			diff = -diff
-		}
-
-		diffs = append(diffs, diff)
-	}
+	diffs := lo.Map(cols[0], func(val, i int) int {
+		return val - cols[1][i]
+	})
 
 	return lo.Reduce(diffs, func(acc, val, _ int) int {
+		if val < 0 { // Make sure the value is positive
+			val = -val
+		}
+
 		return acc + val
 	}, 0)
 }
 
 func calculateSimilarity(cols [2][]int) int {
-	score := 0
-
-	for i := 0; i < len(cols[0]); i++ {
-		digit := cols[0][i]
-		instances := lo.Count(cols[1], digit)
-
-		for j := 0; j < len(cols[1]); j++ {
-			if cols[1][j] == digit {
-				instances++
-			}
-		}
-
-		score += digit * instances
-	}
-
-	return score
+	return lo.Reduce(cols[0], func(acc, val, _ int) int { // Take everyhing from the first column
+		return acc + (val * lo.Count(cols[1], val)) // Multiply it by the count of the same value in the second column
+	}, 0)
 }
