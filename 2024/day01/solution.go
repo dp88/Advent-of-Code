@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aoc2024/helpers"
 	_ "embed"
 	"fmt"
 	"slices"
@@ -32,7 +33,14 @@ func main() {
 	slices.Sort(cols[0])
 	slices.Sort(cols[1])
 
-	diffs := make([]int, 0, len(lines))
+	helpers.Solution(
+		fmt.Sprintf("total distance: %d", calculateDiffs(cols)),
+		fmt.Sprintf("similarity: %d", calculateSimilarity(cols)),
+	)
+}
+
+func calculateDiffs(cols [2][]int) int {
+	diffs := make([]int, 0, len(cols[0]))
 
 	for i := 0; i < len(cols[0]); i++ {
 		diff := cols[0][i] - cols[1][i]
@@ -43,10 +51,26 @@ func main() {
 		diffs = append(diffs, diff)
 	}
 
-	sum := lo.Reduce(diffs, func(acc, val, _ int) int {
+	return lo.Reduce(diffs, func(acc, val, _ int) int {
 		return acc + val
 	}, 0)
+}
 
-	fmt.Println("solution part 1)")
-	fmt.Println(sum)
+func calculateSimilarity(cols [2][]int) int {
+	score := 0
+
+	for i := 0; i < len(cols[0]); i++ {
+		digit := cols[0][i]
+		instances := lo.Count(cols[1], digit)
+
+		for j := 0; j < len(cols[1]); j++ {
+			if cols[1][j] == digit {
+				instances++
+			}
+		}
+
+		score += digit * instances
+	}
+
+	return score
 }
